@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,9 +16,8 @@ public class Issue {
     private String title;
     private String textIssue;
     private String author;
-    private String[] assignees = new String[0];
-    private String[] labels = new String[0];
-//    private Label labels = new Label();
+    private List<String> assignees = new ArrayList<String>();
+    private List<String> labels = new ArrayList<String>();
     private String project;
     private String milestone;
     private int data;//сколько дней с начала года

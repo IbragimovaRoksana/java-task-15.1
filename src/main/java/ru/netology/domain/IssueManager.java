@@ -1,4 +1,5 @@
 package ru.netology.domain;
+
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -10,102 +11,99 @@ public class IssueManager {
         this.repository = repository;
     }
 
-    public void add(Issue issue){
+    public void add(Issue issue) {
         repository.save(issue);
     }
 
-    public void addAll(List<Issue> issues){
+    public void addAll(List<Issue> issues) {
         repository.saveAll(issues);
     }
 
-    public List<Issue> findAll(){
-       return repository.findAll();
+    public List<Issue> findAll() {
+        return repository.findAll();
     }
 
-    public List<Issue> findOpen(){
+    public List<Issue> findOpen() {
         return repository.findOpen();
     }
 
-    public List<Issue> findClose(){
+    public List<Issue> findClose() {
         return repository.findClose();
     }
 
-    public void removeById(int id){
+    public void removeById(int id) {
         repository.removeById(id);
     }
 
-    public void clearAll(){
+    public void clearAll() {
         repository.clear();
     }
 
-    public void removeAll(List<Issue> issues){
+    public void removeAll(List<Issue> issues) {
         repository.removeAll(issues);
     }
 
-    public List<Issue> sortByNew(Comparator<Issue> comparator){
-        List<Issue> result=repository.findAll();
+    public List<Issue> sortAscending() {
+        List<Issue> result = repository.findAll();
+        Comparator<Issue> comparator = new ComparatorIssue();
         result.sort(comparator);
         return result;
     }
 
-    public List<Issue> sortByOld(Comparator<Issue> comparator){
-        List<Issue> result=repository.findAll();
+    public List<Issue> sortDescending() {
+        List<Issue> result = repository.findAll();
+        Comparator<Issue> comparator = new ComparatorIssue();
         result.sort(comparator);
         Collections.reverse(result);
         return result;
     }
 
-    public void closeIssue(int id){
-        for(Issue issue:repository.findAll()){
-            if(issue.getId()==id){
+    public void closeIssue(int id) {
+        for (Issue issue : repository.findAll()) {
+            if (issue.getId() == id) {
                 issue.setOpen(false);
             }
         }
     }
 
-    public void openIssue(int id){
-        for(Issue issue:repository.findAll()){
-            if(issue.getId()==id){
+    public void openIssue(int id) {
+        for (Issue issue : repository.findAll()) {
+            if (issue.getId() == id) {
                 issue.setOpen(true);
             }
         }
     }
 
-    public List<Issue> sortByAuthor(String author){
+    public List<Issue> sortByAuthor(String author) {
         List<Issue> temp = repository.findAll();
-        temp.removeIf(issue -> !author.equals(issue.getAuthor()));
-        return temp;
+        List<Issue> result = new ArrayList<>();
+        PredicatIssue link = new PredicatIssue(author);
+        for (Issue issue : temp)
+            if (link.test(issue.getAuthor()))
+                result.add(issue);
+        return result;
     }
 
-    public List<Issue> sortByAssignee(String assignee){
+    public List<Issue> sortByAssignee(String assignee) {
         List<Issue> temp = repository.findAll();
-        List<Issue> removed = new ArrayList<>();
-        for(Issue issue:temp){
-            int countOfAssignee=0;
-            for(String assigne: issue.getAssignees()){
-                if (assignee.equals(assigne))
-                    countOfAssignee++;
-            }
-            if(countOfAssignee==0)
-                removed.add(issue);
+        List<Issue> result = new ArrayList<>();
+        PredicatIssue link = new PredicatIssue(assignee);
+        for (Issue issue : temp) {
+            if (repository.filterBy(link, issue.getAssignees()))
+                result.add(issue);
         }
-        temp.removeAll(removed);
-        return temp;
+        return result;
     }
 
-    public List<Issue> sortByLabel(String label){
+    public List<Issue> sortByLabel(String label) {
         List<Issue> temp = repository.findAll();
-        List<Issue> removed = new ArrayList<>();
-        for(Issue issue:temp){
-            int countOfLabel=0;
-            for(String labell: issue.getLabels()){
-                if (label.equals(labell))
-                    countOfLabel++;
-            }
-            if(countOfLabel==0)
-                removed.add(issue);
+        List<Issue> result = new ArrayList<>();
+        PredicatIssue link = new PredicatIssue(label);
+        for (Issue issue : temp) {
+            if (repository.filterBy(link, issue.getLabels()))
+                result.add(issue);
         }
-        temp.removeAll(removed);
-        return temp;
+        return result;
     }
+
 }
